@@ -5,5 +5,5 @@ package com.mastercoder.examples
  *
  */
 object App extends Application {
-  println( "Hello World!" )
+  println( "Hello  World!" )
 }
