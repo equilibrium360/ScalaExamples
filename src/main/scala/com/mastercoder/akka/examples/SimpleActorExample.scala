@@ -4,7 +4,8 @@ import akka.actor.{Props, ActorSystem, Actor}
 import akka.event.Logging
 
 /**
-  * Created by MASTER on 1/18/2018.
+  * 1. Pass message to Actor
+  * 2. Create Actor whose constructor requires arguments
   */
 class HelloActor extends Actor {
 
@@ -16,12 +17,26 @@ class HelloActor extends Actor {
 
   }
 }
+
+class HelloActorWithArgs(initialArg:String) extends Actor {
+
+  val log = Logging(context.system, this)
+  def  receive() = {
+
+    case "hello" => println("Hello Back to you "+initialArg)
+    case _ => println("What did you say? "+initialArg)
+
+  }
+}
 object SimpleActorExample extends App {
     val actorSys = ActorSystem("HelloSystem")
-    val helloActor = actorSys.actorOf(Props[HelloActor], name="helloactor")
+  val helloActor = actorSys.actorOf(Props[HelloActor], name="helloactor")
 
   helloActor ! "hello"
 
+  val  helloWithArgs = actorSys.actorOf(Props(classOf[HelloActorWithArgs], "0IsInitalValue"))
+
+  helloWithArgs ! "hello"
 
 
 
