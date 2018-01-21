@@ -34,7 +34,7 @@ case object StartProcessingItems
 class ExportSupervisor extends Actor {
   val log = Logging(context.system, "application")
 
-  val workers = context.actorOf(Props[ExportTablesWorker].withRouter(RoundRobinPool(2)))
+  val workers = context.actorOf(Props[ExportTablesWorker].withRouter(RoundRobinPool(3)))
 
   def receive = {
     case StartProcessingItems => {
@@ -56,7 +56,10 @@ class ExportTablesWorker extends Actor {
   def receive = {
 
     case ProcessItem(item) => println("Received process Item")
-    case tmm:Item => println("JUST ITEM "+ tmm.id)
+    case tmm:Item => {
+      println("JUST ITEM " + tmm.id)
+      println("Message on Actor "+ self.path)
+    }
     case _ => println("received none")
   }
 }
