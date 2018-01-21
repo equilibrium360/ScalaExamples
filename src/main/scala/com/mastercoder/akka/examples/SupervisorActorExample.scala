@@ -34,7 +34,7 @@ case object StartProcessingItems
 class ExportSupervisor extends Actor {
   val log = Logging(context.system, "application")
 
-  val workers = context.actorOf(Props[ExportTablesWorker].withRouter(RoundRobinPool(100)))
+  val workers = context.actorOf(Props[ExportTablesWorker].withRouter(RoundRobinPool(2)))
 
   def receive = {
     case StartProcessingItems => {
@@ -48,7 +48,7 @@ class ExportSupervisor extends Actor {
   }
 
   def getItems():List[Item] = {
-    Seq(Item(1), Item(2), Item(3), Item(4)).toList
+    Seq(Item(1), Item(2), Item(3), Item(4), Item(5), Item(6)).toList
   }
 }
 class ExportTablesWorker extends Actor {
