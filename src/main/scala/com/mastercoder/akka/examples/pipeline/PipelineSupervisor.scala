@@ -13,14 +13,17 @@ class PipelineSupervisor extends Actor{
   val pipelineFlow = ConfigFactory.load().getConfig("pipelineFlow")
   val jobConfigList = pipelineFlow.getConfigList("jobSeq").asScala
 
-  var dependencyJobs = currentJobsLeft.filter(_.dependancyJobs.size !=0)
-  var doneJobs = List.empty[JobObject]
-  var zeroDependencyJobsToStart = currentJobsLeft.filter(_.dependancyJobs.size == 0 )
   val allJobsBuffer = jobConfigList.map(jc => new JobObject(jc))
-
   val allJobs:List[JobObject] = List.empty[JobObject] ++ allJobsBuffer
 
   var currentJobsLeft:List[JobObject] = List.empty[JobObject] ++ allJobsBuffer
+
+  var dependencyJobs = currentJobsLeft.filter(_.dependancyJobs.size !=0)
+  var doneJobs = List.empty[JobObject]
+  var zeroDependencyJobsToStart = currentJobsLeft.filter(_.dependancyJobs.size == 0 )
+
+
+
 
   var allJobsCount = allJobs.size
   var completedJobsCount = 0
@@ -28,7 +31,7 @@ class PipelineSupervisor extends Actor{
 
 
 
-  println(doneJobs.size)
+  println("All Jobs Count "+ allJobsCount)
 
 
   def updateCurrentJobsLeft(compJob: JobObject):Unit = {
@@ -104,6 +107,8 @@ class PipelineSupervisor extends Actor{
 
       if(areAllJobsDone()) {
         //shutdown System
+
+        context.system.terminate()
       }
       startZeroDependencyJobs()
       resetZeroDependencyJobs()

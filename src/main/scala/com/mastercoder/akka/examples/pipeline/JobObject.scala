@@ -9,14 +9,23 @@ import collection.JavaConverters._
 /**
   * Created by UNIVERSE on 2/9/18.
   */
-class JobObject(val uniqueId:String, val name:String,val dependsOn:Array[String], var dependancyJobs:Set[String], var jobDone:Boolean = false ) {
+class JobObject(val uniqueId:String,
+                val name:String,
+                val dependsOn:List[String],
+                var dependancyJobs:Set[String],
+                var jobDone:Boolean = false ) {
 
 
   def this(jc: Config) {
 
-
-
-    this(jc.getString("uniqueId"),jc.getString("name"), jc.getStringList("dependsOn"),collection.immutable.Set(jc.getStringList("dependsOn").asScala.filterNot(_.equals("none"))), false )
+    //.filterNot(_.equals("none"))
+    this(
+      jc.getString("uniqueId"),
+      jc.getString("name"),
+    //  collection.immutable.List(jc.getStringList("dependsOn")),
+      jc.getStringList("dependsOn").asScala.toList,
+      jc.getStringList("dependsOn").asScala.toSet,
+      false )
 
   }
 

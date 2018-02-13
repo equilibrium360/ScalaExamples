@@ -9,8 +9,10 @@ class JobWorker extends Actor{
 
   def receive = {
     case ExecuteJob(jb:JobObject) => {
-      println("Started executing Job" + jb )
-      println("Done executing Job"  )
+      println("Start executing " + jb.uniqueId )
+      println("Done executing  "  + jb.uniqueId )
+
+      sender() ! JobCompleted(jb)
     }
   }
 
