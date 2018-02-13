@@ -3,6 +3,7 @@ package com.mastercoder.akka.examples.pipeline
 import akka.actor.{Props, Actor}
 import com.typesafe.config.ConfigFactory
 import collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * Created by UNIVERSE on 2/9/18.
@@ -10,37 +11,48 @@ import collection.JavaConverters._
 class PipelineSupervisor extends Actor{
 
   val pipelineFlow = ConfigFactory.load().getConfig("pipelineFlow")
-
-//  pipelineFlow.getList("jobSeq")
-
   val jobConfigList = pipelineFlow.getConfigList("jobSeq").asScala
 
+  val dependencyJobs = currentJobsLeft.filter(_.dependancyJobs.size !=0)
+  val doneJobs = ArrayBuffer[JobObject]()
+  val zeroDependencyJobsToStart = currentJobsLeft.filter(_.dependancyJobs.size == 0 )
+  val allJobsBuffer = jobConfigList.map(jc => new JobObject(jc))
 
+  val allJobs:ArrayBuffer[JobObject] = ArrayBuffer.empty[JobObject] ++= allJobsBuffer
 
+  val currentJobsLeft:ArrayBuffer[JobObject] = ArrayBuffer.empty[JobObject] ++= allJobsBuffer
 
-  val allJobs = jobConfigList.map(jc => new JobObject(jc))
+  var allJobsCount = allJobs.size
+  var completedJobsCount = 0
 
-  val dependancyJobs = allJobs.filter(_.dependancyJobs.size !=0)
-
-  val doneJobs = Vector[JobObject]()
-
-  val zeroDependancyJobs = allJobs.filter(_.dependancyJobs.size == 0 )
 
 
 
   println(doneJobs.size)
 
+  //update currentJobsLeft
+  //get new list of  dependency jobs
+  //get new list of  zero Dependency Jobs
 
+  // Start Executing zero Dependency Jobs
+  //reset Zero Dependency jobs
 
-  def startZeroDependancyJobs():Unit = {
+/*  def updateDependencyJobs(compJob: JobObject):Unit = {
 
-    zeroDependancyJobs.foreach(jb => {
+    dependencyJobs.map(j => {
+        j.dependancyJobs-=compJob.uniqueId
+    })
+
+  }*/
+ def resetZeroDependencyJobs():Unit = {
+   zeroDependencyJobsToStart.remove(0,zeroDependencyJobsToStart.size)
+}
+
+  def startZeroDependencyJobs():Unit = {
+    zeroDependencyJobsToStart.foreach(jb => {
       val actorRef = context.actorOf(Props[JobWorker], name=jb.uniqueId)
       actorRef ! ExecuteJob(jb)
     })
-
-
-
   }
 
 
@@ -48,6 +60,14 @@ class PipelineSupervisor extends Actor{
   def receive = {
 
     case ExecutePipeline => {
+
+      startZeroDependencyJobs()
+      resetZeroDependencyJobs()
+
+    }
+    case JobCompleted(comJb: JobObject) => {
+
+      doneJobs+=comJb
 
     }
     case _ => println("aaaaaaaa")

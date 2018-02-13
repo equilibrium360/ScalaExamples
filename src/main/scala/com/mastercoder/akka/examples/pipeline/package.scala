@@ -7,5 +7,6 @@ package object pipeline {
 
   case object ExecutePipeline
   case class ExecuteJob(jobObject: JobObject)
+  case class JobCompleted(jobObject: JobObject)
 
 }

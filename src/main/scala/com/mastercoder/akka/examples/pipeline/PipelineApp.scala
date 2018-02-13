@@ -9,8 +9,8 @@ object PipelineApp extends App {
 
 
   val actorSys = ActorSystem("PipelineSystem")
-  val pipeSup = actorSys.actorOf(Props[PipelineSupervisor], name="PipelineSupervisor")
+  val pipeSuper = actorSys.actorOf(Props[PipelineSupervisor], name="PipelineSupervisor")
 
-  pipeSup ! ExecutePipeline
+  pipeSuper ! ExecutePipeline
 
 }
